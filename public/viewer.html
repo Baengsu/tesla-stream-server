@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tesla Stream</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="frame" alt="stream" />
+    <script>
+      (function () {
+        const pathParts = window.location.pathname.split("/");
+        const streamId = pathParts[pathParts.length - 1] || "tesla";
+
+        const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsUrl =
+          wsProtocol +
+          "://" +
+          window.location.host +
+          "/ws/view/" +
+          encodeURIComponent(streamId);
+
+        const img = document.getElementById("frame");
+        const ws = new WebSocket(wsUrl);
+        ws.binaryType = "arraybuffer";
+
+        ws.onmessage = function (event) {
+          const blob = new Blob([event.data], { type: "image/jpeg" });
+          const url = URL.createObjectURL(blob);
+          img.src = url;
+        };
+      })();
+    </script>
+  </body>
+</html>
